@@ -1,5 +1,4 @@
 # Deploying docs and releasing substrate connect
-
 ## Releasing
 
 TODO
