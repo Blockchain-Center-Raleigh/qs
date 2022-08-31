@@ -1,39 +1,30 @@
-name: Publish
+name: Deploy to Github Pages
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+
+  workflow_dispatch:
 
 jobs:
-  npm-publish:
+  deployment:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+   
+        uses: actions/setup-node@v3
         with:
-          node-version: 18
+             node-version: 18
       - run: yarn install --immutable
       - run: yarn build
-      - name: Publish Dry Run
-        working-directory: './packages/connect'
-        run: npm publish --unsafe-perm --dry-run
-      - name: Publish
-        id: publish
-        uses: JS-DevTools/npm-publish@v1
-        # Warning: this GitHub action doesn't seem to run prepublish scripts, hence
-        # the `npm publish --dry-run` done right above is important to ensure this.
-        with:
-          token: ${{ secrets.NPM_TOKEN }}
-          package: ./packages/connect/package.json
-          access: public
+      - name: Build
+      - name: yarn export
       - name: Deploy
-        if: steps.publish.outputs.type != 'none'
-        run: yarn run deploy
-
-  all:
-    # This dummy job depends on all the mandatory checks. It succeeds if and only if all CI checks
-    # are successful.
-    needs: [npm-publish]
-    runs-on: ubuntu-latest
-    steps:
-     - run: echo Success
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.TOKEN }}
+          publish_dir: ./out
